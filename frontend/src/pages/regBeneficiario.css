@@ -1,0 +1,16 @@
+.container { max-width: 1024px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-top: 8px solid #3462AC; }
+h2 { text-align: center; color: #3462AC; }
+label { display: block; margin-top: 10px; font-weight: bold; color: #3462AC; }
+input, select, textarea { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; }
+.section { margin-top: 10px; border-left: 4px solid #4DA9DF; padding-left: 10px; }
+.btn { background: #3462AC; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; transition: background 0.3s ease; }
+.btndel { background: red; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; transition: background 0.3s ease; }
+.btn:hover { background: #4DA9DF; }
+table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+th { background-color: #F2DC12; color: #333; }
+.modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+.modal-content { background-color: #fff; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; border-radius: 10px; }
+.close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+.acciones-btns button { margin-right: 5px; background-color: #4DA9DF; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+.acciones-btns button:hover { background-color: #3462AC; }

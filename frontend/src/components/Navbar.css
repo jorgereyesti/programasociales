@@ -1,0 +1,23 @@
+.navbar__menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+.hamburger {
+  display: inline-block;
+  width: 24px;
+  height: 18px;
+  position: relative;
+}
+.hamburger span {
+  position: absolute;
+  height: 2px;
+  width: 100%;
+  background: #333;
+  left: 0;
+  transition: 0.3s;
+}
+.hamburger span:nth-child(1) { top: 0; }
+.hamburger span:nth-child(2) { top: 8px; }
+.hamburger span:nth-child(3) { top: 16px; }
