@@ -6,21 +6,25 @@ export default function TablaEntregas({ data }) {
     <table className="table">
       <thead>
         <tr>
-          <th>Fecha</th>
-          <th>Apellido y Nombre</th>
+          <th>Fecha entrega</th>
+          <th>Beneficiario</th>
           <th>DNI</th>
-          <th>Lugar</th>
-          <th>Entregado</th>
+          <th>CIC</th>
+          <th>Producto</th>
+          <th>Cantidad (u. o Kg)</th>
+          <th>Detalles</th>
         </tr>
       </thead>
       <tbody>
-        {data.map((e) => (
+        {Array.isArray(data) && data.map((e) => (
           <tr key={e.id}>
-            <td>{new Date(e.fecha).toLocaleDateString()}</td>
-            <td>{`${e.beneficiario.apellido}, ${e.beneficiario.nombre}`}</td>
+            <td>{new Date(e.fecha_entrega).toLocaleDateString()}</td>
+            <td>{e.beneficiario.nombre}</td>
             <td>{e.beneficiario.dni}</td>
-            <td>{e.cic_nombre || e.lugar}</td>
-            <td>{e.entregado ? 'Sí' : 'No'}</td>
+            <td>{e.beneficiario.cic?.nombre || ''}</td>
+            <td>{e.producto.nombre}</td>
+            <td>{e.cantidad}</td>
+            <td>{e.detalles}</td>
           </tr>
         ))}
       </tbody>
@@ -32,15 +36,18 @@ TablaEntregas.propTypes = {
   data: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      fecha: PropTypes.string.isRequired,
+      fecha_entrega: PropTypes.string.isRequired,
       beneficiario: PropTypes.shape({
-        apellido: PropTypes.string.isRequired,
         nombre: PropTypes.string.isRequired,
         dni: PropTypes.string.isRequired,
+        cic: PropTypes.shape({ nombre: PropTypes.string }).isRequired,
       }).isRequired,
-      cic_nombre: PropTypes.string,
-      lugar: PropTypes.string,
-      entregado: PropTypes.bool.isRequired,
+      producto: PropTypes.shape({
+        id: PropTypes.number,
+        nombre: PropTypes.string.isRequired
+      }).isRequired,
+      cantidad: PropTypes.number.isRequired,
+      detalles: PropTypes.string,
     })
   ).isRequired,
 };

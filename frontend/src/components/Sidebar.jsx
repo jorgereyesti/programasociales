@@ -57,13 +57,7 @@ export default function Sidebar({ isOpen, onClose }) {
             onClick={handleLinkClick}
           >
             <FaBoxOpen /> <span>Entregas</span>
-          </NavLink>
-          <NavLink 
-            to="/datos"
-            onClick={handleLinkClick}
-          >
-            <FaDatabase /> <span>Datos</span>
-          </NavLink>
+          </NavLink>    
           <NavLink 
             to="/configuracion"
             onClick={handleLinkClick}

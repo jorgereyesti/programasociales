@@ -25,9 +25,9 @@ export const deleteBeneficiario = (id) =>
   api.delete(`/registro/${id}`);
 
 // Producción y entrega
-export const postProduccion = data => api.post('/produccion', data);
-export const getProduccion = () => api.get('/produccion');
-export const postEntrega = data => api.post('/entrega', data);
-export const getEntregas = () => api.get('/entrega');
+export const postProduccion = data => api.post('/producciones', data);
+export const getProducciones = () => api.get('/producciones');
+export const postEntrega = data => api.post('/entregas', data);
+export const getEntregas = () => api.get('/entregas');
 
 export default api;

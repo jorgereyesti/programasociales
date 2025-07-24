@@ -13,52 +13,68 @@ export default function EntregaPage() {
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
+  // Carga inicial de entregas
   useEffect(() => {
     async function fetchEntregas() {
       try {
-        const { data: lista } = await getEntregas({ all: true });
-        setEntregas(lista);
+        const resp = await getEntregas({ all: true });
+        const data = resp.data;
+        const items = Array.isArray(data.items)
+          ? data.items
+          : Array.isArray(data)
+            ? data
+            : [];
+        setEntregas(items);
       } catch (err) {
         console.error('Error cargando entregas:', err);
+        setEntregas([]);
       }
     }
     fetchEntregas();
   }, []);
 
-  // Tipar búsqueda
+  // Tipo de búsqueda (DNI o nombre)
   const isNumericSearch = (term) => /^\d+$/.test(term.trim());
-  const searchType = useMemo(() => {
-    if (!searchTerm) return 'nombre';
-    return isNumericSearch(searchTerm) ? 'dni' : 'nombre';
-  }, [searchTerm]);
-  const getSearchPlaceholder = () => {
-    if (!searchTerm) return 'Buscar por nombre o DNI.';
-    return searchType === 'dni' ? 'Buscando por DNI.' : 'Buscando por nombre.';
-  };
+  const searchType = useMemo(
+    () => (!searchTerm ? 'nombre' : isNumericSearch(searchTerm) ? 'dni' : 'nombre'),
+    [searchTerm]
+  );
+  const getSearchPlaceholder = () =>
+    !searchTerm
+      ? 'Buscar por nombre o DNI...'
+      : searchType === 'dni'
+        ? 'Buscando por DNI...'
+        : 'Buscando por nombre...';
 
   // Filtrado y búsqueda
   const filteredEntregas = useMemo(() => {
-    let filtered = entregas;
+    let filtered = Array.isArray(entregas) ? entregas : [];
     if (searchTerm) {
       if (searchType === 'dni') {
-        filtered = filtered.filter(e => e.beneficiario.dni.includes(searchTerm));
+        filtered = filtered.filter(e =>
+          e.beneficiario.dni.includes(searchTerm)
+        );
       } else {
         filtered = filtered.filter(e =>
-          e.beneficiario.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          e.beneficiario.apellido.toLowerCase().includes(searchTerm.toLowerCase())
+          e.beneficiario.nombre.toLowerCase().includes(searchTerm.toLowerCase())
         );
       }
     }
     if (selectedCIC) {
-      filtered = filtered.filter(e => e.cic_nombre === selectedCIC);
+      filtered = filtered.filter(
+        e => e.beneficiario.cic?.nombre === selectedCIC
+      );
     }
     return filtered;
   }, [entregas, searchTerm, searchType, selectedCIC]);
 
-  // Opciones CIC
+  // Opciones de CIC disponibles
   const cicOptions = useMemo(() => {
-    const cics = [...new Set(entregas.map(e => e.cic_nombre))];
-    return cics.filter(Boolean).sort();
+    if (!Array.isArray(entregas)) return [];
+    const nombres = entregas
+      .map(e => e.beneficiario.cic?.nombre)
+      .filter(Boolean);
+    return Array.from(new Set(nombres)).sort();
   }, [entregas]);
 
   // Paginación
@@ -73,21 +89,21 @@ export default function EntregaPage() {
 
   // Exportar CSV
   const exportToCSV = () => {
-    const dataToExport = filteredEntregas;
-    const headers = ['Fecha', 'Apellido y Nombre', 'DNI', 'Lugar', 'Entregado'];
-    const rows = dataToExport.map(e => [
-      new Date(e.fecha).toLocaleDateString(),
-      `${e.beneficiario.apellido}, ${e.beneficiario.nombre}`,
+    const headers = ['Fecha', 'Beneficiario', 'DNI', 'CIC', 'Producto', 'Cantidad', 'Detalles'];
+    const rows = filteredEntregas.map(e => [
+      new Date(e.fecha_entrega).toLocaleDateString(),
+      e.beneficiario.nombre,
       e.beneficiario.dni,
-      e.cic_nombre || e.lugar,
-      e.entregado ? 'Sí' : 'No'
+      e.beneficiario.cic?.nombre || '',
+      e.producto.nombre,
+      e.cantidad,
+      e.detalles
     ]);
     const csvContent = [headers.join(','), ...rows.map(r => r.map(cell => `"${cell}"`).join(','))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `entregas_${new Date().toISOString().split('T')[0]}.csv`);
+    link.href = URL.createObjectURL(blob);
+    link.download = `entregas_${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -98,38 +114,50 @@ export default function EntregaPage() {
     setSelectedCIC('');
     setShowCICFilter(false);
   };
-
-  const handlePrevious = () => { if (currentPage > 1) setCurrentPage(currentPage - 1); };
-  const handleNext = () => { if (currentPage < totalPages) setCurrentPage(currentPage + 1); };
+  const handlePrevious = () => currentPage > 1 && setCurrentPage(currentPage - 1);
+  const handleNext = () => currentPage < totalPages && setCurrentPage(currentPage + 1);
   const getPageNumbers = () => {
     const pages = [];
-    const maxVisible = 5;
-    if (totalPages <= maxVisible) {
+    const max = 5;
+    if (totalPages <= max) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else if (currentPage <= 3) {
+      pages.push(1,2,3,4,'...', totalPages);
+    } else if (currentPage >= totalPages - 2) {
+      pages.push(1,'...', totalPages-3, totalPages-2, totalPages-1, totalPages);
     } else {
-      if (currentPage <= 3) pages.push(1,2,3,4,'...', totalPages);
-      else if (currentPage >= totalPages - 2) pages.push(1,'...', totalPages-3, totalPages-2, totalPages-1, totalPages);
-      else pages.push(1,'...', currentPage-1, currentPage, currentPage+1,'...', totalPages);
+      pages.push(1,'...', currentPage-1, currentPage, currentPage+1,'...', totalPages);
     }
     return pages;
   };
 
   // KPIs
-  const familiasBeneficiadas = useMemo(() => new Set(entregas.map(e => e.beneficiario.id_programa_social)).size, [entregas]);
-  const tortillasEntregadas = useMemo(() => entregas.filter(e => e.producto === 'Tortilla').reduce((sum, e) => sum + (e.cantidad||0), 0), [entregas]);
-  const panEntregado = useMemo(() => entregas.filter(e => e.producto === 'Pan').reduce((sum, e) => sum + (e.cantidad||0), 0), [entregas]);
+  const familiasBeneficiadas = useMemo(() => {
+    if (!Array.isArray(entregas)) return 0;
+    return new Set(entregas.map(e => e.beneficiario.id)).size;
+  }, [entregas]);
+  const tortillasEntregadas = useMemo(() => {
+    if (!Array.isArray(entregas)) return 0;
+    return entregas.filter(e => e.producto.nombre === 'Tortillas')
+      .reduce((sum, e) => sum + (e.cantidad || 0), 0);
+  }, [entregas]);
+  const panEntregado = useMemo(() => {
+    if (!Array.isArray(entregas)) return 0;
+    return entregas.filter(e => e.producto.nombre === 'Pan')
+      .reduce((sum, e) => sum + (e.cantidad || 0), 0);
+  }, [entregas]);
 
   return (
     <section className="page-section">
       <div className="beneficiarios-header">
-        <h1>Entregas</h1>
+        <h1>Entrega de Productos</h1>
         <button className="btn-primary" onClick={() => navigate('/entregas/nuevo')}>Nueva Entrega</button>
       </div>
 
       <div className="kpi-container">
         <CardKPI label="Familias Beneficiadas" value={familiasBeneficiadas} />
-        <CardKPI label="Tortillas Entregadas" value={tortillasEntregadas} />
-        <CardKPI label="Pan Entregado" value={panEntregado} />
+        <CardKPI label="Tortillas Entregadas (u)" value={tortillasEntregadas} />
+        <CardKPI label="Pan Entregado (Kg)" value={panEntregado} />
       </div>
 
       <div className="beneficiarios-content">
@@ -144,44 +172,35 @@ export default function EntregaPage() {
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
-              {searchTerm && (
-                <button className="clear-search-btn" onClick={() => setSearchTerm('')} title="Limpiar búsqueda">✕</button>
-              )}
-              {searchTerm && (
-                <div className="search-type-indicator">
-                  {searchType === 'dni' ? '🔢' : '📝'}
-                </div>
-              )}
+              {searchTerm && <button className="clear-search-btn" onClick={() => setSearchTerm('')} title="Limpiar búsqueda">✕</button>}
+              {searchTerm && <div className="search-type-indicator">{searchType === 'dni' ? '🔢' : '📝'}</div>}
             </div>
           </div>
 
           <div className="filter-section">
-            <button className={`btn-filter ${showCICFilter ? 'active' : ''}`} onClick={() => setShowCICFilter(!showCICFilter)}>
+            <button
+              className={`btn-filter ${showCICFilter ? 'active' : ''}`}
+              onClick={() => setShowCICFilter(!showCICFilter)}
+            >
               Filtrar por CIC
             </button>
             <button className="btn-export" onClick={exportToCSV} disabled={filteredEntregas.length === 0}>
               Exportar CSV
             </button>
-            {(searchTerm || selectedCIC) && (
-              <button className="btn-clear-filters" onClick={clearFilters}>
-                Limpiar filtros
-              </button>
-            )}
+            {(searchTerm || selectedCIC) && <button className="btn-clear-filters" onClick={clearFilters}>Limpiar filtros</button>}
           </div>
         </div>
 
         {showCICFilter && (
           <div className="cic-filter">
-            <select className="cic-select" value={selectedCIC} onChange={e => setSelectedCIC(e.target.value)}>
+            <select value={selectedCIC} onChange={e => setSelectedCIC(e.target.value)} className="cic-select">
               <option value="">Todos los CICs</option>
               {cicOptions.map(cic => (<option key={cic} value={cic}>{cic}</option>))}
             </select>
           </div>
         )}
 
-        <TablaEntregas
-          data={currentEntregas}
-        />
+        <TablaEntregas data={currentEntregas} />
 
         {filteredEntregas.length === 0 && (
           <div className="no-results">
@@ -190,14 +209,9 @@ export default function EntregaPage() {
           </div>
         )}
 
-        {/* Paginación */}
         <div className="pagination-info">
-          Mostrando {filteredEntregas.length > 0 ? startIndex + 1 : 0} - {Math.min(endIndex, filteredEntregas.length)} de {filteredEntregas.length} entregas
-          {(searchTerm || selectedCIC) && (
-            <span className="filter-indicator">
-              {filteredEntregas.length < entregas.length && ` (filtrados de ${entregas.length})`}
-            </span>
-          )}
+          Mostrando {filteredEntregas.length ? startIndex + 1 : 0} - {Math.min(endIndex, filteredEntregas.length)} de {filteredEntregas.length} entregas
+          {(searchTerm || selectedCIC) && <span className="filter-indicator">{filteredEntregas.length < entregas.length && ` (filtrados de ${entregas.length})`}</span>}
         </div>
 
         {totalPages > 1 && (
