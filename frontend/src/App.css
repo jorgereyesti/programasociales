@@ -341,6 +341,7 @@ html, body {
 .search-input-group {
   display: flex;
   align-items: center;
+  
   position: relative;
   max-width: 350px; /* Reducido para dar más espacio a los botones */
 }

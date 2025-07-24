@@ -14,6 +14,7 @@ sequelize.authenticate()
 .catch(err => console.error('Error al conectar con MySQL:', err));
 
 // Routers
+const dashboardRouter = require('./routes/dashboard');
 const registroRouter = require('./routes/registro');
 const beneficiariosRouter = require('./routes/beneficiarios');
 const produccionesRouter = require('./routes/producciones');
@@ -33,6 +34,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors({ origin: 'http://localhost:5173' }));
 
 // Rutas API
+app.use('/dashboard', dashboardRouter);
 app.use('/registro', registroRouter);
 app.use('/beneficiarios', beneficiariosRouter);
 app.use('/producciones', produccionesRouter);

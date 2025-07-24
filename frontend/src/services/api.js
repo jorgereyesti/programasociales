@@ -11,6 +11,7 @@ export const getCIC = () => api.get('/cic');
 export const getCondicionesFamiliar = () => api.get('/condiciones-familiar');
 export const getMantenimientosEconomico = () => api.get('/mantenimientos-economico');
 export const getProductos = () => api.get('/productos');
+export const getDashboardStats = () => api.get('/dashboard');
 
 // Programa social
 export const postRegistro = data => api.post('/registro', data);
