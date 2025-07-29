@@ -4,14 +4,18 @@ import {
   getCIC,
   getCondicionesFamiliar,
   getMantenimientosEconomico,
-  postRegistro
+  postRegistro,
+  getBeneficiario,
+  putBeneficiario
 } from '../services/api';
+import { useParams } from 'react-router-dom';
 import ModalIntegrante from '../components/ModalIntegrante';
 import '../App.css';
 import '../index.css';
 import './regBeneficiario.css';
 
 export default function RegistroPage() {
+  const { id } = useParams();
   const {
     register,
     control,
@@ -46,6 +50,7 @@ export default function RegistroPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(null);
 
+  // Carga de catálogos
   useEffect(() => {
     getCIC()
       .then(res => setCics(res.data))
@@ -59,6 +64,52 @@ export default function RegistroPage() {
       .then(res => setMantenimientos(res.data))
       .catch(err => console.error('Error al cargar Mantenimientos:', err));
   }, []);
+
+  // Carga datos de beneficiario si estamos en edición y cuando condiciones estén listas
+  useEffect(() => {
+    if (!id || condiciones.length === 0) return;
+    getBeneficiario(id)
+      .then(res => {
+        const {
+          fecha_relevamiento,
+          cic_id,
+          nombre,
+          dni,
+          telefono,
+          direccion,
+          lena_social,
+          actividades_cic,
+          ingresos_formales,
+          huerta,
+          mantenimiento_economico_id,
+          observaciones,
+          familiares
+        } = res.data;
+        reset({
+          fecha_relevamiento,
+          cic: String(cic_id),
+          nombre,
+          dni,
+          telefono,
+          direccion,
+          lena_social: lena_social ? 'Sí' : 'No',
+          actividades_cic: actividades_cic ? 'Sí' : 'No',
+          ingresos_formales: ingresos_formales ? 'Sí' : 'No',
+          huerta: huerta ? 'Sí' : 'No',
+          mantenimiento_economico: String(mantenimiento_economico_id),
+          observaciones,
+          integrantes: familiares.map(i => ({
+            nombre: i.nombre,
+            dni: i.dni,
+            fecha_nac: i.fecha_nacimiento,
+            escolaridad: i.escolaridad ? 'Sí' : 'No',
+            vinculo: i.vinculo,
+            condicion: condiciones.find(c => c.id === i.condicion_id)?.descripcion || ''
+          }))
+        });
+      })
+      .catch(err => console.error('Error al cargar beneficiario:', err));
+  }, [id, condiciones, reset]);
 
   const onSubmit = async (data) => {
     const mapCondicionId = (value) => {
@@ -91,8 +142,13 @@ export default function RegistroPage() {
     };
 
     try {
-      await postRegistro(payload);
-      alert('Formulario enviado correctamente.');
+      if (id) {
+        await putBeneficiario(id, payload);
+        alert('Beneficiario actualizado correctamente.');
+      } else {
+        await postRegistro(payload);
+        alert('Formulario enviado correctamente.');
+      }
       reset();
     } catch (err) {
       alert(`Error al enviar formulario: ${err.message}`);
@@ -171,9 +227,7 @@ export default function RegistroPage() {
                 <td>{f.fecha_nac}</td>
                 <td>{f.escolaridad ? 'Sí' : 'No'}</td>
                 <td>{f.vinculo}</td>
-                <td>{
-                  condiciones.find(c => c.descripcion === f.condicion)?.descripcion || ''
-                }</td>
+                <td>{condiciones.find(c => c.descripcion === f.condicion)?.descripcion || ''}</td>
                 <td>
                   <button className='btn' onClick={() => { setCurrentIdx(idx); setModalOpen(true); }}>Editar</button>
                   <button className='btndel' onClick={() => remove(idx)}>Eliminar</button>
@@ -237,7 +291,7 @@ export default function RegistroPage() {
       </div>
 
       <button className="btn" type="button" onClick={handleSubmit(onSubmit)}>
-        Enviar
+        {id ? 'Actualizar' : 'Enviar'}
       </button>
 
       <ModalIntegrante

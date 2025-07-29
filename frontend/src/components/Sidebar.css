@@ -40,7 +40,7 @@
 
 /* Header del sidebar */
 .sidebar-header {
-  padding: 1.5rem 1rem;
+  padding: 4.5rem 4.5rem 0rem 1rem;
   border-bottom: 1px solid #e5e5e5;
   background: #f8f9fa;
   display: flex;

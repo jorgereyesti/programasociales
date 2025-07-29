@@ -36,6 +36,7 @@ export default function DashboardPage() {
   return (
     <section className="page-section">
       {/* KPIs principales */}
+      <h2>Panaderia Social de la Municipalidad de SMT</h2>
       <div className="kpi-container">
         <CardKPI label="Familias beneficiadas" value={stats.familiasBeneficiadas} />
         <CardKPI label="Personas Beneficiadas" value={stats.personasAtendidas + stats.familiasBeneficiadas} />

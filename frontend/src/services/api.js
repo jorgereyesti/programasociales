@@ -15,14 +15,16 @@ export const getDashboardStats = () => api.get('/dashboard');
 
 // Programa social
 export const postRegistro = data => api.post('/registro', data);
-export const getBeneficiarios = (params = {}) =>  api.get('/beneficiarios', { params });
+export const getBeneficiarios = (params = {}) => api.get('/beneficiarios', { params });
 export const getFamiliares = () => api.get('/familiares');
 
+// Obtener un beneficiario específico con sus familiares
+export const getBeneficiario = (id) => api.get(`/beneficiarios/${id}`);
+
 // Actualizar y eliminar beneficiario (registro)
-export const putBeneficiario = (id, data) =>
-  api.put(`/registro/${id}`, data);
-export const deleteBeneficiario = (id) =>
-  api.delete(`/registro/${id}`);
+export const putBeneficiario = (id, data) => api.put(`/beneficiarios/${id}`, data);
+export const updateBeneficiario = (id, data) => api.put(`/beneficiarios/${id}`, data); // Alias para consistency
+export const deleteBeneficiario = (id) => api.delete(`/beneficiarios/${id}`);
 
 // Producción y entrega
 export const postProduccion = data => api.post('/producciones', data);

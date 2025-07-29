@@ -154,7 +154,7 @@ export default function BeneficiariosPage() {
 
   // Handlers de navegación y borrado
   const handleAdd = () => navigate('nuevo');
-  const handleEdit = id => navigate(`/registro/${id}`);
+  const handleEdit = id => navigate(`/beneficiarios/${id}`);
   const handleDelete = async id => {
     if (window.confirm('¿Eliminar este beneficiario?')) {
       try {
