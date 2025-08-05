@@ -58,17 +58,13 @@ export default function Sidebar({ isOpen, onClose }) {
           >
             <FaBoxOpen /> <span>Entregas</span>
           </NavLink>    
-          <NavLink 
+          {/* <NavLink 
             to="/configuracion"
             onClick={handleLinkClick}
           >
             <FaCog /> <span>Configuración</span>
-          </NavLink>
+          </NavLink> */}
         </nav>
-
-        <button className="sidebar-logout">
-          <FaSignOutAlt /> <span>Salir</span>
-        </button>
       </aside>
     </>
   );

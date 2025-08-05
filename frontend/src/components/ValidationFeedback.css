@@ -1,0 +1,64 @@
+.validation-feedback {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  animation: slideDown 0.3s ease-out;
+}
+
+.validation-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.validation-header h4 {
+  margin: 0;
+  color: #856404;
+  font-size: 1rem;
+}
+
+.validation-icon {
+  font-size: 1.2rem;
+}
+
+.validation-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.validation-item {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #ffeaa7;
+}
+
+.validation-item:last-child {
+  border-bottom: none;
+}
+
+.field-name {
+  font-weight: 600;
+  color: #856404;
+  min-width: 120px;
+}
+
+.error-message {
+  color: #721c24;
+  flex: 1;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

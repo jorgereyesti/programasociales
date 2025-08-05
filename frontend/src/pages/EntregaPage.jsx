@@ -13,17 +13,26 @@ export default function EntregaPage() {
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
-  // Carga inicial de entregas
+  // Carga inicial de entregas - CORREGIDO
   useEffect(() => {
     async function fetchEntregas() {
       try {
-        const resp = await getEntregas({ all: true });
+        // Opción 1: Usar el parámetro 'all=true' (si implementaste la Solución 1)
+        const resp = await getEntregas({ all: 'true' });
+        
+        // Opción 2: Usar un límite muy alto si no implementas 'all=true'
+        // const resp = await getEntregas({ limit: 9999 });
+        
         const data = resp.data;
-        const items = Array.isArray(data.items)
-          ? data.items
-          : Array.isArray(data)
-            ? data
+        
+        // Normalizar la respuesta
+        const items = Array.isArray(data) 
+          ? data  // Si es array directo (con all=true)
+          : Array.isArray(data.items) 
+            ? data.items  // Si viene paginado
             : [];
+            
+        console.log(`Entregas cargadas: ${items.length}`);
         setEntregas(items);
       } catch (err) {
         console.error('Error cargando entregas:', err);
@@ -52,17 +61,17 @@ export default function EntregaPage() {
     if (searchTerm) {
       if (searchType === 'dni') {
         filtered = filtered.filter(e =>
-          e.beneficiario.dni.includes(searchTerm)
+          e.beneficiario?.dni?.includes(searchTerm)
         );
       } else {
         filtered = filtered.filter(e =>
-          e.beneficiario.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+          e.beneficiario?.nombre?.toLowerCase().includes(searchTerm.toLowerCase())
         );
       }
     }
     if (selectedCIC) {
       filtered = filtered.filter(
-        e => e.beneficiario.cic?.nombre === selectedCIC
+        e => e.beneficiario?.cic?.nombre === selectedCIC
       );
     }
     return filtered;
@@ -72,7 +81,7 @@ export default function EntregaPage() {
   const cicOptions = useMemo(() => {
     if (!Array.isArray(entregas)) return [];
     const nombres = entregas
-      .map(e => e.beneficiario.cic?.nombre)
+      .map(e => e.beneficiario?.cic?.nombre)
       .filter(Boolean);
     return Array.from(new Set(nombres)).sort();
   }, [entregas]);
@@ -134,16 +143,18 @@ export default function EntregaPage() {
   // KPIs
   const familiasBeneficiadas = useMemo(() => {
     if (!Array.isArray(entregas)) return 0;
-    return new Set(entregas.map(e => e.beneficiario.id)).size;
+    return new Set(entregas.map(e => e.beneficiario?.id).filter(Boolean)).size;
   }, [entregas]);
+  
   const tortillasEntregadas = useMemo(() => {
     if (!Array.isArray(entregas)) return 0;
-    return entregas.filter(e => e.producto.nombre === 'Tortillas')
+    return entregas.filter(e => e.producto?.nombre === 'Tortillas')
       .reduce((sum, e) => sum + (e.cantidad || 0), 0);
   }, [entregas]);
+  
   const panEntregado = useMemo(() => {
     if (!Array.isArray(entregas)) return 0;
-    return entregas.filter(e => e.producto.nombre === 'Pan')
+    return entregas.filter(e => e.producto?.nombre === 'Pan')
       .reduce((sum, e) => sum + (e.cantidad || 0), 0);
   }, [entregas]);
 
@@ -151,10 +162,22 @@ export default function EntregaPage() {
     <section className="page-section">
       <div className="beneficiarios-header">
         <h1>Entrega de Productos</h1>
-        <button className="btn-primary" onClick={() => navigate('/entregas/nuevo')}>Nueva Entrega</button>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button className="btn-primary" onClick={() => navigate('/entregas/nuevo')}>
+            Nueva Entrega
+          </button>
+          <button 
+            className="btn-primary" 
+            onClick={() => navigate('/entregas/masiva')}
+            style={{ background: '#28a745' }}
+          >
+            📦 Entrega Masiva
+          </button>
+        </div>
       </div>
 
       <div className="kpi-container">
+        <CardKPI label="Total Entregas" value={entregas.length} />
         <CardKPI label="Familias Beneficiadas" value={familiasBeneficiadas} />
         <CardKPI label="Tortillas Entregadas (u)" value={tortillasEntregadas} />
         <CardKPI label="Pan Entregado (Kg)" value={panEntregado} />

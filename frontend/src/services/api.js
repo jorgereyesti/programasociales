@@ -26,10 +26,16 @@ export const putBeneficiario = (id, data) => api.put(`/beneficiarios/${id}`, dat
 export const updateBeneficiario = (id, data) => api.put(`/beneficiarios/${id}`, data); // Alias para consistency
 export const deleteBeneficiario = (id) => api.delete(`/beneficiarios/${id}`);
 
-// Producción y entrega
+// Producción
 export const postProduccion = data => api.post('/producciones', data);
-export const getProducciones = () => api.get('/producciones');
+export const getProducciones = (params = {}) => api.get('/producciones', { params }); // También corregido para consistencia
+
+// Entregas - CORREGIDO para aceptar parámetros
+export const getEntregas = (params = {}) => api.get('/entregas', { params });
 export const postEntrega = data => api.post('/entregas', data);
-export const getEntregas = () => api.get('/entregas');
+
+// Nuevo endpoint para entregas masivas
+export const postEntregaMasiva = data => api.post('/entregas/masiva', data);
+export const getBeneficiariosCIC = (cicId) => api.get(`/entregas/beneficiarios-cic/${cicId}`);
 
 export default api;

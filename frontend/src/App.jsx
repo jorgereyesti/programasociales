@@ -15,6 +15,7 @@ import RegistroProdPage from './pages/RegistroProduccionPage'
 //Entregas
 import EntregaPage from './pages/EntregaPage'
 import RegistroEntregaPage from './pages/RegistroEntregaPage'
+import RegistroEntregaMasivaPage from './pages/RegistroEntregaMasivaPage'
 import ConfiguracionPage from './pages/ConfiguracionPage'
 
 
@@ -56,6 +57,7 @@ export default function App() {
             <Route path="/produccion/nuevo" element={<RegistroProdPage />} />
             <Route path="/entregas" element={<EntregaPage />} />
             <Route path="/entregas/nuevo" element={<RegistroEntregaPage />} />
+            <Route path="/entregas/masiva" element={<RegistroEntregaMasivaPage />} />
             <Route path="/configuracion" element={<ConfiguracionPage />} />
           </Routes>
         </main>

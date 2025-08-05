@@ -2,6 +2,34 @@ const express = require('express');
 const router = express.Router();
 const { Cic, Beneficiario, Familiar, CatCondicionFamiliar } = require('../models');
 
+//validacion asincrona
+router.get('/check-dni', async (req, res) => {
+  try {
+    const { dni, excludeId } = req.query;
+    
+    if (!dni) {
+      return res.status(400).json({ error: 'DNI es requerido' });
+    }
+    
+    const where = { dni };
+    if (excludeId) {
+      where.id = { [Op.ne]: excludeId };
+    }
+    
+    const beneficiario = await Beneficiario.findOne({ 
+      where,
+      attributes: ['id', 'nombre', 'dni']
+    });
+    
+    res.json({
+      exists: !!beneficiario,
+      beneficiario: beneficiario || null
+    });
+  } catch (error) {
+    console.error('Error verificando DNI:', error);
+    res.status(500).json({ error: 'Error al verificar DNI' });
+  }
+});
 // Obtener todos los beneficiarios
 // GET /beneficiarios with pagination & optional filters
 router.get('/', async (req, res) => {
@@ -80,10 +108,78 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener beneficiario' });
   }
 });
+//VALIDACIONES
+const validateUpdate = async (req, res, next) => {
+  const { id } = req.params;
+  const { familiares, ...benData } = req.body;
+  const errors = [];
 
+  try {
+    // Verificar si el beneficiario existe
+    const beneficiario = await Beneficiario.findByPk(id);
+    if (!beneficiario) {
+      return res.status(404).json({ error: 'Beneficiario no encontrado' });
+    }
+
+    // Si se está actualizando el DNI, verificar que no exista
+    if (benData.dni && benData.dni !== beneficiario.dni) {
+      const existingDNI = await Beneficiario.findOne({
+        where: { 
+          dni: benData.dni,
+          id: { [Op.ne]: id } // Excluir el registro actual
+        }
+      });
+      
+      if (existingDNI) {
+        errors.push({
+          field: 'dni',
+          message: `El DNI ${benData.dni} ya está registrado para ${existingDNI.nombre}`
+        });
+      }
+    }
+
+    // Validar familiares si se envían
+    if (familiares && Array.isArray(familiares)) {
+      const dnisFamiliares = new Set();
+      
+      for (let i = 0; i < familiares.length; i++) {
+        const familiar = familiares[i];
+        
+        // Verificar DNIs duplicados en el grupo
+        if (dnisFamiliares.has(familiar.dni)) {
+          errors.push({
+            field: `familiares[${i}].dni`,
+            message: `DNI ${familiar.dni} duplicado en el grupo familiar`
+          });
+        }
+        dnisFamiliares.add(familiar.dni);
+
+        // Verificar que el DNI del familiar no sea igual al del beneficiario
+        if (familiar.dni === (benData.dni || beneficiario.dni)) {
+          errors.push({
+            field: `familiares[${i}].dni`,
+            message: `El familiar ${familiar.nombre} no puede tener el mismo DNI que el beneficiario`
+          });
+        }
+      }
+    }
+
+    if (errors.length > 0) {
+      return res.status(400).json({
+        error: 'Errores de validación',
+        details: errors
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Error en validación de actualización:', error);
+    res.status(500).json({ error: 'Error al validar datos' });
+  }
+};
 // Actualizar un beneficiario
 // PUT /beneficiarios/:id
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateUpdate, async (req, res) => {
   try {
     const { familiares, ...benData } = req.body;
     // Actualizar datos del beneficiario

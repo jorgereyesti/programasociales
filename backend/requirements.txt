@@ -1,0 +1,21 @@
+# Node.js >= 18.0.0
+
+# Core Framework
+express@5.1.0
+
+# Database
+sequelize@6.37.7
+mysql2@3.14.1
+
+# Middleware
+cors@2.8.5
+cookie-parser@1.4.7
+morgan@1.10.0
+
+# Utilities
+dotenv@16.6.0
+debug@4.4.1
+http-errors@2.0.0
+
+# Development Dependencies
+nodemon@3.1.10
