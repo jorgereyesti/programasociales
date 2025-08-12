@@ -33,7 +33,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors({
-    origin: '*'
+    origin: ['https://3635a04b3b96.ngrok-free.app'],
+    credentials: true
 }));
 
 // Rutas API

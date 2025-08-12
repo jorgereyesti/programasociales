@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000',
-  headers: { 'Content-Type': 'application/json' },
-  timeout: 5000,
+  baseURL: import.meta.env.VITE_API_URL, // <- viene del .env
+  withCredentials: false,                // o true si usás cookies/sesión
+  timeout: 20000
 });
 
 // Catálogos
