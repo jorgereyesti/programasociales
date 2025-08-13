@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, // <- viene del .env
+  baseURL: 'https://adbeb55a4f7e.ngrok-free.app', // <- viene del .env
   withCredentials: false,                // o true si usás cookies/sesión
   timeout: 20000
 });

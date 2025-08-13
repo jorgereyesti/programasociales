@@ -9,19 +9,19 @@ export default defineConfig({
     strictPort: true,
     cors: true,
     allowedHosts: [
-      '3635a04b3b96.ngrok-free.app' // dominio de ngrok que querés permitir
+      'adbeb55a4f7e.ngrok-free.app' // dominio de ngrok que querés permitir
     ],
     proxy: {
-      '/dashboard':              { target: 'https://3635a04b3b96.ngrok-free.app:3000', changeOrigin: true },
-      '/registro':               { target: 'https://3635a04b3b96.ngrok-free.app:3000', changeOrigin: true },
-      '/beneficiarios':          { target: 'https://3635a04b3b96.ngrok-free.app:3000', changeOrigin: true },
-      '/producciones':           { target: 'https://3635a04b3b96.ngrok-free.app:3000', changeOrigin: true },
-      '/productos':              { target: 'https://3635a04b3b96.ngrok-free.app:3000', changeOrigin: true },
-      '/entregas':               { target: 'https://3635a04b3b96.ngrok-free.app:3000', changeOrigin: true },
-      '/cic':                    { target: 'https://3635a04b3b96.ngrok-free.app:3000', changeOrigin: true },
-      '/condiciones-familiar':   { target: 'https://3635a04b3b96.ngrok-free.app:3000', changeOrigin: true },
-      '/mantenimientos-economico': { target: 'https://3635a04b3b96.ngrok-free.app:3000', changeOrigin: true },
-      '/familiares':             { target: 'https://3635a04b3b96.ngrok-free.app:3000', changeOrigin: true },
+      '/dashboard':              { target: 'http://localhost:3000', changeOrigin: true },
+      '/registro':               { target: 'http://localhost:3000', changeOrigin: true },
+      '/beneficiarios':          { target: 'http://localhost:3000', changeOrigin: true },
+      '/producciones':           { target: 'http://localhost:3000', changeOrigin: true },
+      '/productos':              { target: 'http://localhost:3000', changeOrigin: true },
+      '/entregas':               { target: 'http://localhost:3000', changeOrigin: true },
+      '/cic':                    { target: 'http://localhost:3000', changeOrigin: true },
+      '/condiciones-familiar':   { target: 'http://localhost:3000', changeOrigin: true },
+      '/mantenimientos-economico': { target: 'http://localhost:3000', changeOrigin: true },
+      '/familiares':             { target: 'http://localhost:3000', changeOrigin: true },
     }
   }
 })
