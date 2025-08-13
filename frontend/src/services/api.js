@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: 'https://estadisticas.smt.gob.ar:4321',
   headers: { 'Content-Type': 'application/json' },
   timeout: 5000,
 });
