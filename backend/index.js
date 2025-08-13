@@ -1,16 +1,23 @@
-const createError = require('http-errors');
+// const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
-require('dotenv').config();
+const dotenv = require("dotenv");
+const https = require('https');
+const fs = require('fs');
+
+const app = express();
+app.use(cors());
+dotenv.config();// Cargar variables de entorno antes de usarlas
+
 require('./models'); // cargar modelos y asociaciones
 
 // Sequelize setup
 const sequelize = require('./config/database');
 sequelize.authenticate()
-.then(() => console.log('Conexión con MySQL establecida.'))
+.then(() => console.log('Conexi�n con MySQL establecida.'))
 .catch(err => console.error('Error al conectar con MySQL:', err));
 
 // Routers
@@ -25,16 +32,13 @@ const getCondicion = require('./routes/condicionfamiliar');
 const getMantenimientosEconomico = require('./routes/mantenimiento');
 const getFamiliares = require('./routes/familiares');
 
-const app = express();
 
+// Middlewares
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors({
-    origin: '*'
-}));
 
 // Rutas API
 app.use('/dashboard', dashboardRouter);
@@ -46,15 +50,20 @@ app.use('/entregas', entregasRouter);
 app.use('/cic', getCic);
 app.use('/condiciones-familiar', getCondicion);
 app.use('/mantenimientos-economico', getMantenimientosEconomico);
-app.use('/familiares',  getFamiliares);
+app.use('/familiares', getFamiliares);
 
-// catch 404 and forward to error handler
-app.use((req, res, next) => next(createError(404)));
 
-// error handler
-app.use((err, req, res, next) => {
-res.status(err.status || 500);
-res.json({ error: err.message });
-});
+// Puerto
+// const PORT = process.env.PORT || 3000;
+
+const options = {
+    key: fs.readFileSync('../scfx0vp99'),
+    cert: fs.readFileSync('../scfx0vp99'),
+    //ca: fs.readFileSync('/opt/psa/var/certificates/scfqdiDyQ') // si tienes un archivo CA bundle
+  };
+
+  https.createServer(options, app).listen(4321, () => {
+    console.log(`server listening on port 4321`);
+  });
 
 module.exports = app;
