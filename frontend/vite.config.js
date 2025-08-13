@@ -6,10 +6,12 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',      // escucha en todas las interfaces
     port: 5173,
-    strictPort: true,     // falla si el 5173 está ocupado
-    cors: true,           // habilita CORS (aunque el backend ya lo tiene)
+    strictPort: true,
+    cors: true,
+    allowedHosts: [
+      'adbeb55a4f7e.ngrok-free.app' // dominio de ngrok que querés permitir
+    ],
     proxy: {
-      // Ajustá estas keys si tus rutas son distintas
       '/dashboard':              { target: 'http://localhost:3000', changeOrigin: true },
       '/registro':               { target: 'http://localhost:3000', changeOrigin: true },
       '/beneficiarios':          { target: 'http://localhost:3000', changeOrigin: true },

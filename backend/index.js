@@ -39,6 +39,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+<<<<<<< HEAD:backend/index.js
+=======
+app.use(cors({
+    origin: ['https://adbeb55a4f7e.ngrok-free.app']
+}));
+>>>>>>> ef254e8ffd9a190c2a35a8860f395a8e0174f2bd:backend/app.js
 
 // Rutas API
 app.use('/dashboard', dashboardRouter);
